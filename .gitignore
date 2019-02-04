@@ -1,0 +1,11 @@
+# Intellij
+.idea/
+*.iml
+*.iws
+
+uploads/
+target/
+
+*.class
+*.war
+*.jar
