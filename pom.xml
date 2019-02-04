@@ -31,7 +31,7 @@
                     <assembleDirectory>target</assembleDirectory>
                     <programs>
                         <program>
-                            <mainClass>com.mousanony.mousbot.Main</mainClass>
+                            <mainClass>com.mousanony.telegram.bot.triballeader.Application</mainClass>
                             <name>tribalLeader</name>
                         </program>
                     </programs>
@@ -54,6 +54,12 @@
             <artifactId>telegrambots</artifactId>
             <version>4.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>mousanony.com</groupId>
+            <artifactId>tribal-leader</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 
