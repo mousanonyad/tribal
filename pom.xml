@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mousanony.telegram.bot</groupId>
-    <artifactId>triballeader</artifactId>
+    <artifactId>consolegame</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -31,8 +31,8 @@
                     <assembleDirectory>target</assembleDirectory>
                     <programs>
                         <program>
-                            <mainClass>com.mousanony.telegram.bot.triballeader.Application</mainClass>
-                            <name>tribalLeader</name>
+                            <mainClass>com.mousanony.telegram.bot.consolegame.Application</mainClass>
+                            <name>consolegamebot</name>
                         </program>
                     </programs>
                 </configuration>
@@ -53,6 +53,22 @@
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
             <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-abilities</artifactId>
+            <version>4.1.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.0</version>
         </dependency>
     </dependencies>
 </project>

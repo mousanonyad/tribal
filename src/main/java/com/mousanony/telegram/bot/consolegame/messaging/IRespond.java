@@ -1,4 +1,4 @@
-package com.mousanony.telegram.bot.triballeader.messaging;
+package com.mousanony.telegram.bot.consolegame.messaging;
 
 /**
  * @author mousanonyad

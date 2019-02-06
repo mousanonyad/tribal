@@ -1,6 +1,6 @@
-package com.mousanony.telegram.bot.triballeader.dao;
+package com.mousanony.telegram.bot.consolegame.dao;
 
-import com.mousanony.telegram.bot.triballeader.session.GameSession;
+import com.mousanony.telegram.bot.consolegame.session.GameSession;
 
 import java.util.HashMap;
 import java.util.Map;

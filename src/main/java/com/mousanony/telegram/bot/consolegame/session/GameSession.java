@@ -1,15 +1,15 @@
-package com.mousanony.telegram.bot.triballeader.session;
+package com.mousanony.telegram.bot.consolegame.session;
 
-import com.mousanony.telegram.bot.triballeader.logic.scenario.Situation;
-import com.mousanony.telegram.bot.triballeader.logic.scenario.pack.Hurricane;
-import com.mousanony.telegram.bot.triballeader.logic.scenario.pack.NothingSituation;
-import com.mousanony.telegram.bot.triballeader.logic.scenario.pack.PoisonedFood;
-import com.mousanony.telegram.bot.triballeader.logic.scenario.pack.War;
-import com.mousanony.telegram.bot.triballeader.logic.userinteraction.Choice;
-import com.mousanony.telegram.bot.triballeader.messaging.IRespond;
-import com.mousanony.telegram.bot.triballeader.messaging.InputHandler;
-import com.mousanony.telegram.bot.triballeader.person.Character;
-import com.mousanony.telegram.bot.triballeader.person.resources.Resource;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.Situation;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.Hurricane;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.NothingSituation;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.PoisonedFood;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.War;
+import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
+import com.mousanony.telegram.bot.consolegame.messaging.IRespond;
+import com.mousanony.telegram.bot.consolegame.messaging.InputHandler;
+import com.mousanony.telegram.bot.consolegame.person.Character;
+import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,6 +23,7 @@ public class GameSession {
     private List<Situation> startSituations;
     private List<Situation> middleSituations;
     private List<Situation> holdSituations;
+    private Situation currentSittuation;
     private Character character;
     private InputHandler inputHandler;
     private Random random;
@@ -45,7 +46,15 @@ public class GameSession {
         startSituations.add(new Hurricane());
 
         middleSituations.add(new War());
-        startGameSession();
+        currentSittuation = startSituations.get(random.nextInt(startSituations.size()));
+    }
+
+    public Situation getCurrentSittuation() {
+        return currentSittuation;
+    }
+
+    public void setCurrentSittuation(Situation currentSittuation) {
+        this.currentSittuation = currentSittuation;
     }
 
     public void setGameOver() {

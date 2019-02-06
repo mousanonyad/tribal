@@ -1,7 +1,7 @@
-package com.mousanony.telegram.bot.triballeader.logic.scenario;
+package com.mousanony.telegram.bot.consolegame.logic.scenario;
 
 
-import com.mousanony.telegram.bot.triballeader.logic.userinteraction.Choice;
+import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
 
 import java.util.HashSet;
 import java.util.Set;

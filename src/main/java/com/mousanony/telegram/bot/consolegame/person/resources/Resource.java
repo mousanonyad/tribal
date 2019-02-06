@@ -1,4 +1,4 @@
-package com.mousanony.telegram.bot.triballeader.person.resources;
+package com.mousanony.telegram.bot.consolegame.person.resources;
 
 /**
  * @author mousanonyad

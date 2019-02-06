@@ -1,6 +1,6 @@
-package com.mousanony.telegram.bot.triballeader.logic.userinteraction;
+package com.mousanony.telegram.bot.consolegame.logic.userinteraction;
 
-import com.mousanony.telegram.bot.triballeader.session.GameSession;
+import com.mousanony.telegram.bot.consolegame.session.GameSession;
 
 /**
  * @author mousanonyad

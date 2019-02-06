@@ -1,11 +1,11 @@
-package com.mousanony.telegram.bot.triballeader.logic.scenario.pack;
+package com.mousanony.telegram.bot.consolegame.logic.scenario.pack;
 
-import com.mousanony.telegram.bot.triballeader.logic.scenario.Situation;
-import com.mousanony.telegram.bot.triballeader.logic.userinteraction.Choice;
-import com.mousanony.telegram.bot.triballeader.logic.userinteraction.Result;
-import com.mousanony.telegram.bot.triballeader.person.Character;
-import com.mousanony.telegram.bot.triballeader.person.resources.Resource;
-import com.mousanony.telegram.bot.triballeader.session.GameSession;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.Situation;
+import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
+import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Result;
+import com.mousanony.telegram.bot.consolegame.person.Character;
+import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
+import com.mousanony.telegram.bot.consolegame.session.GameSession;
 
 /**
  * @author mousanonyad

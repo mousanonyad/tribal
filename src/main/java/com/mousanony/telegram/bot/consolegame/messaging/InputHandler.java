@@ -1,6 +1,6 @@
-package com.mousanony.telegram.bot.triballeader.messaging;
+package com.mousanony.telegram.bot.consolegame.messaging;
 
-import com.mousanony.telegram.bot.triballeader.logic.userinteraction.Choice;
+import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
 
 import java.util.Map;
 import java.util.Scanner;

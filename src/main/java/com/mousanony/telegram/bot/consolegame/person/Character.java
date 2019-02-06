@@ -1,6 +1,6 @@
-package com.mousanony.telegram.bot.triballeader.person;
+package com.mousanony.telegram.bot.consolegame.person;
 
-import com.mousanony.telegram.bot.triballeader.person.resources.Resource;
+import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
 
 /**
  * @author mousanonyad
