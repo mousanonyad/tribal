@@ -28,15 +28,6 @@ public class Application {
 
     public static void main(String[] args) {
         try {
-
-            // Create the Authenticator that will return auth's parameters for proxy authentication
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(PROXY_USER, PROXY_PASSWORD.toCharArray());
-                }
-            });
-
             ApiContextInitializer.init();
 
             // Create the TelegramBotsApi object to register your bots
@@ -46,6 +37,14 @@ public class Application {
 
             // Set up Http proxy
             if (useProxy){
+                // Create the Authenticator that will return auth's parameters for proxy authentication
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(PROXY_USER, PROXY_PASSWORD.toCharArray());
+                    }
+                });
+
                 botOptions.setProxyHost(PROXY_HOST);
                 botOptions.setProxyPort(PROXY_PORT);
                 // Select proxy type: [HTTP|SOCKS4|SOCKS5] (default: NO_PROXY)

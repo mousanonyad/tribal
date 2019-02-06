@@ -68,25 +68,4 @@ public class LongPolling extends AbilityBot {
                 .post(ctx -> silent.send("И здесь что-то будет.", ctx.chatId()))
                 .build();
     }
-
-    @Override
-    public void onUpdateReceived(Update update) {
-        Ability ability = sayHelloWorld();
-        if (update.hasMessage() && update.getMessage().hasText()) {
-
-            Message updateMessage = update.getMessage();
-            Long chatId = updateMessage.getChatId();
-
-            GameSession session = gameSessionDao.getSessionById(chatId);
-
-            SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
-                    .setChatId(chatId)
-                    .setText(update.getMessage().getText());
-            try {
-                execute(message); // Call method to send the message
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
