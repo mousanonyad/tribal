@@ -37,7 +37,8 @@ public class War extends Situation {
                             police.increase(humans.getPositiveValue() - 2);
                         }
 
-                        if (police.getPositiveValue() > 25 && session.rollDice()) {
+
+                        if (police.getPositiveValue() > 30 || police.getPositiveValue() > 20 && session.rollDice()) {
                             setMessage("Похоже мы победили, о великий, наши ряды пополнены пленными.");
                             police.increaseWithPercent(10);
                             humans.increaseWithPercent(20);

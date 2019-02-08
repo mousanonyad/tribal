@@ -22,9 +22,6 @@ public class Result {
     public String doChange(GameSession session) {
         StringBuilder builder = session.doLogic();
 
-        if (session.isGameOver())
-            return builder.toString();
-
         return builder.append("\n").append(message).toString();
     }
 }
