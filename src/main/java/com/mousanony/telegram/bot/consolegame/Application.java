@@ -15,7 +15,7 @@ import java.net.PasswordAuthentication;
  */
 public class Application {
     private static final String BOT_NAME = "TribalLeaderBot";
-    private static final String BOT_TOKEN = "";
+    private static final String BOT_TOKEN = "690426245:AAHu4QBMi35MttNtOFeEEa2SpKa07lEjdic";
 //    private static final String BOT_URL = "t.me/TribalLeaderBot";
 
     private static String PROXY_HOST = "212.224.113.209" /* proxy host */;
@@ -24,7 +24,7 @@ public class Application {
     private static String PROXY_PASSWORD = "quah1Iej" /* proxy password */;
 
     //пока всё здесь, рефакторинг потом
-    private static boolean useProxy = true;
+    private static boolean useProxy = false;
 
     public static void main(String[] args) {
         try {
