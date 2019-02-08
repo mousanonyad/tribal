@@ -1,6 +1,6 @@
 package com.mousanony.telegram.bot.consolegame;
 
-import com.mousanony.telegram.bot.consolegame.handlers.LongPolling;
+import com.mousanony.telegram.bot.consolegame.handlers.Bot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.ApiContext;
@@ -36,7 +36,7 @@ public class Application {
             DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
 
             // Set up Http proxy
-            if (useProxy){
+            if (useProxy) {
                 // Create the Authenticator that will return auth's parameters for proxy authentication
                 Authenticator.setDefault(new Authenticator() {
                     @Override
@@ -52,7 +52,7 @@ public class Application {
             }
 
             // Register your newly created AbilityBot
-            LongPolling bot = new LongPolling(BOT_TOKEN, BOT_NAME, botOptions);
+            Bot bot = new Bot(BOT_TOKEN, BOT_NAME, botOptions);
 
             botsApi.registerBot(bot);
 

@@ -18,7 +18,7 @@ public abstract class Situation {
         this.message = message;
     }
 
-    public Set<Choice> getChoices() {
+    Set<Choice> getChoices() {
         return choices;
     }
 

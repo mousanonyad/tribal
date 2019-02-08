@@ -16,15 +16,15 @@ public class NothingSituation extends Situation {
         addChoice(new Choice("Хреново.", new Result("Посмотрим что будет завтра")));
         addChoice(new Choice("Устроить пир.", new Result("Люди довольны и размножаются") {
             @Override
-            public String doChange(GameSession logic) {
-                logic.getCharacter().getFood().decreaseWithPercent(20);
-                logic.getCharacter().getHumans().increaseWithPercent(5);
-                return super.doChange(logic);
+            public String doChange(GameSession session) {
+                session.getCharacter().getFood().decreaseWithPercent(20);
+                session.getCharacter().getHumans().increaseWithPercent(5);
+                return super.doChange(session);
             }
         }) {
             @Override
-            public boolean isVisible(GameSession logic) {
-                return logic.getCharacter().getFood().getPositiveValue() > 10 && logic.rollDice();
+            public boolean isVisible(GameSession session) {
+                return session.getCharacter().getFood().getPositiveValue() > 10 && session.rollDice();
             }
         });
     }

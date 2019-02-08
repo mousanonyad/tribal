@@ -16,32 +16,32 @@ public class PoisonedFood extends Situation {
                 new Result("Ты нашел всех заговорщиков и они признались, какую именно еду они отравили." +
                         "\nВ пытках погибла значительная часть племени.") {
                     @Override
-                    public String doChange(GameSession logic) {
-                        logic.getCharacter().getFood().decreaseWithPercent(30);
-                        logic.getCharacter().getHumans().decreaseWithPercent(30);
-                        return super.doChange(logic);
+                    public String doChange(GameSession session) {
+                        session.getCharacter().getFood().decreaseWithPercent(30);
+                        session.getCharacter().getHumans().decreaseWithPercent(30);
+                        return super.doChange(session);
                     }
                 }) {
             @Override
-            public boolean isVisible(GameSession logic) {
-                return logic.getCharacter().getHumans().getPositiveValue() > 0;
+            public boolean isVisible(GameSession session) {
+                return session.getCharacter().getHumans().getPositiveValue() > 0;
             }
         });
         addChoice(new Choice("Уничтожить запасы возможно отравленной еды.",
                 new Result("Тебе удалось предотвратить массовую гибель людей, но и значительный запас еды был уничтожен.") {
                     @Override
-                    public String doChange(GameSession logic) {
-                        logic.getCharacter().getFood().decreaseWithPercent(logic.getRandomPercent());
-                        return super.doChange(logic);
+                    public String doChange(GameSession session) {
+                        session.getCharacter().getFood().decreaseWithPercent(session.getRandomPercent());
+                        return super.doChange(session);
                     }
                 }));
         addChoice(new Choice("Ничего не делать. И пусть жрецы молятся.",
                 new Result("Большая часть твоих подданых умерла. Народ в панике!") {
                     @Override
-                    public String doChange(GameSession logic) {
-                        logic.getCharacter().getHumans().decreaseWithPercent(70);
-                        logic.getCharacter().getFood().decreaseWithPercent(40);
-                        return super.doChange(logic);
+                    public String doChange(GameSession session) {
+                        session.getCharacter().getHumans().decreaseWithPercent(70);
+                        session.getCharacter().getFood().decreaseWithPercent(40);
+                        return super.doChange(session);
                     }
                 }) {
         });

@@ -7,4 +7,6 @@ import com.mousanony.telegram.bot.consolegame.session.GameSession;
  */
 public interface GameSessionDao {
     GameSession getSessionById(long id);
+
+    GameSession newSessionWithId(long id);
 }

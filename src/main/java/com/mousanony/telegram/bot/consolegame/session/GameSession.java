@@ -1,20 +1,18 @@
 package com.mousanony.telegram.bot.consolegame.session;
 
+import com.mousanony.telegram.bot.consolegame.logic.scenario.Holder;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.Situation;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.Hurricane;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.NothingSituation;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.PoisonedFood;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.War;
-import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
-import com.mousanony.telegram.bot.consolegame.messaging.IRespond;
-import com.mousanony.telegram.bot.consolegame.messaging.InputHandler;
 import com.mousanony.telegram.bot.consolegame.person.Character;
 import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author mousanonyad
@@ -23,22 +21,18 @@ public class GameSession {
     private List<Situation> startSituations;
     private List<Situation> middleSituations;
     private List<Situation> holdSituations;
-    private Situation currentSittuation;
+    private Holder holder;
     private Character character;
-    private InputHandler inputHandler;
     private Random random;
-    private IRespond view;
     private String finalMessage;
     private boolean gameOver = false;
     private AtomicInteger count = new AtomicInteger();
 
     public GameSession(int humanCount) {
         this.character = new Character(new Resource(humanCount));
-        this.inputHandler = new InputHandler();
         this.startSituations = new ArrayList<>();
         this.middleSituations = new ArrayList<>();
         this.holdSituations = new ArrayList<>();
-        this.view = view;
         this.random = new Random();
 
         startSituations.add(new NothingSituation());
@@ -46,19 +40,33 @@ public class GameSession {
         startSituations.add(new Hurricane());
 
         middleSituations.add(new War());
-        currentSittuation = startSituations.get(random.nextInt(startSituations.size()));
+        holder = newHolder();
     }
 
-    public Situation getCurrentSittuation() {
-        return currentSittuation;
+    public Holder getCurrentHolder() {
+        return holder;
     }
 
-    public void setCurrentSittuation(Situation currentSittuation) {
-        this.currentSittuation = currentSittuation;
+    public Holder newHolder() {
+        if (count.getAndIncrement() > 2) {
+            startSituations.addAll(middleSituations);
+        }
+        Situation situation = startSituations.get(random.nextInt(startSituations.size()));
+        holder = new Holder(situation, this);
+        return holder;
     }
 
     public void setGameOver() {
         this.gameOver = true;
+        holder = null;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     public String getFinalMessage() {
@@ -77,50 +85,6 @@ public class GameSession {
         return character;
     }
 
-    private void startGameSession() {
-        while (getCountOfAllPeople() > 0 && !gameOver) {
-            doSituationMove();
-        }
-        view.output("Игра закончена.");
-    }
-
-    private void doSituationMove() {
-        doLogic();
-        if (getCountOfAllPeople() <= 0) {
-            return;
-        }
-        action();
-    }
-
-    //TODO зарефакторить и метод и весь класс
-    private Choice action() {
-        if (count.getAndIncrement() > 2) {
-            startSituations.addAll(middleSituations);
-        }
-
-        Situation situation = startSituations.get(random.nextInt(startSituations.size()));
-
-        //принт текущее состояние ресурсов
-        view.output(character.toString());
-        //принт ситуации
-        view.output(situation.getMessage());
-
-        //фильтр по видимым ответам
-        List<Choice> choiceList = situation.getChoices().stream().filter(p -> p.isVisible(this)).collect(Collectors.toList());
-        Collections.shuffle(choiceList);
-
-        //принт ответов
-        Map<Integer, Choice> choiceMap = choiceList.stream().collect(Collectors.toMap(choiceList::indexOf, Function.identity()));
-        choiceMap.forEach((k, v) -> view.output((k + ". " + v.getMessage())));
-
-
-        Choice choice = inputHandler.handleInput(choiceMap, view);
-
-        //принт результата и результат
-        view.output(choice.getResult().doChange(this));
-        return choice;
-    }
-
     private int getCountOfPolice() {
         return character.getPolice().getPositiveValue();
     }
@@ -137,39 +101,42 @@ public class GameSession {
         return character.getPolice().getPositiveValue() + character.getPriests().getPositiveValue() + character.getHumans().getPositiveValue();
     }
 
-    private void doLogic() {
-        calculateHumans();
-        getPercentUnitRelationship();
+    public StringBuilder doLogic() {
+        StringBuilder builder = new StringBuilder();
+        if (isGameOver())
+            return builder;
+        calculateHumans(builder);
+        getPercentUnitRelationship(builder);
         calculateResource();
+        return builder;
     }
 
-    private void calculateHumans() {
+    private void calculateHumans(StringBuilder builder) {
         if (character.getHumans().getPositiveValue() <= 0)
-            view.output("Все люди умерли, воинам и жрецам придется самим возделывать землю.");
+            builder.append("Все люди умерли, воинам и жрецам придется самим возделывать землю.\n");
         if (character.getFood().getPositiveValue() <= 0) {
             character.getHumans().decreaseWithPercent(30);
             character.getPolice().decreaseWithPercent(20);
             character.getPriests().decreaseWithPercent(20);
-            view.output("Люди мрут от голода.");
+            builder.append("Люди мрут от голода.\n");
         } else character.getHumans().increaseWithPercent(5);
     }
 
     private void calculateResource() {
         Resource food = character.getFood();
-
         if (getCountOfHumans() > 0)
             food.increaseWithPercent(10);
         else
             food.decreaseWithPercent(20);
     }
 
-    private void getPercentUnitRelationship() {
+    private void getPercentUnitRelationship(StringBuilder builder) {
         if (getCountOfHumans() / 100 * getCountOfPolice() > 50) {
-            view.output("Воины устраивают дебош и убивают с пытками несколько людей.");
+            builder.append("Воины устраивают дебош и убивают с пытками несколько людей.\n");
             character.getHumans().decreaseWithPercent(10);
         }
         if (getCountOfHumans() / 100 * getCountOfPriests() > 30) {
-            view.output("Народ бастует против засилия жрецов, ест еду и жжет жрецов!");
+            builder.append("Народ бастует против засилия жрецов, ест еду и жжет жрецов!\n");
             character.getPriests().decreaseWithPercent(15);
             character.getFood().decreaseWithPercent(15);
         }

@@ -22,7 +22,7 @@ public class Choice {
         return message;
     }
 
-    public boolean isVisible(GameSession logic) {
+    public boolean isVisible(GameSession session) {
         return true;
     }
 

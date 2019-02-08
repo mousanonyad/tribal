@@ -17,9 +17,12 @@ public class MapGameSessionDao implements GameSessionDao {
 
     @Override
     public GameSession getSessionById(long id) {
-        if (gameSessionMap.containsKey(id))
-            return gameSessionMap.get(id);
+        return gameSessionMap.get(id);
+    }
 
-        return gameSessionMap.put(id, new GameSession(30));
+    @Override
+    public GameSession newSessionWithId(long id) {
+        gameSessionMap.put(id, new GameSession(30));
+        return gameSessionMap.get(id);
     }
 }
