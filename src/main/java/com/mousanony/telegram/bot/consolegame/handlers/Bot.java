@@ -143,8 +143,6 @@ public class Bot extends AbilityBot {
     private ReplyKeyboard withTodayTomorrowButtons(Map<Integer, Choice> choiceMap) {
         // Create ReplyKeyboardMarkup object
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setOneTimeKeyboard(true);
-        keyboardMarkup.setSelective(true);
         keyboardMarkup.setResizeKeyboard(true);
         // Create the keyboard (list of keyboard rows)
         List<KeyboardRow> keyboard = new ArrayList<>();

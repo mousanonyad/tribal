@@ -22,7 +22,7 @@ public class Hurricane extends Situation {
                 }) {
             @Override
             public boolean isVisible(GameSession session) {
-                return session.getCharacter().getFood().getPositiveValue() > 10;
+                return session.getCharacter().getFood().getPositiveValue() > 10 && session.getCharacter().getHumans().getPositiveValue() > 0;
             }
         });
         addChoice(new Choice("Разместить людей в почти пустых едохранилищах.",
@@ -34,7 +34,7 @@ public class Hurricane extends Situation {
                 }) {
             @Override
             public boolean isVisible(GameSession session) {
-                return session.getCharacter().getFood().getPositiveValue() < 10;
+                return session.getCharacter().getFood().getPositiveValue() < 10 && session.getCharacter().getHumans().getPositiveValue() > 0;
             }
         });
         addChoice(new Choice("Ничего не делать. И пусть жрецы молятся.",
@@ -46,6 +46,10 @@ public class Hurricane extends Situation {
                         return super.doChange(session);
                     }
                 }) {
+            @Override
+            public boolean isVisible(GameSession session) {
+                return session.getCharacter().getHumans().getPositiveValue() > 0;
+            }
         });
         addChoice(new Choice("Разместить людей у жрецов.",
                 new Result() {
@@ -65,6 +69,22 @@ public class Hurricane extends Situation {
                         return super.doChange(session);
                     }
                 }) {
+            @Override
+            public boolean isVisible(GameSession session) {
+                return session.getCharacter().getHumans().getPositiveValue() > 0;
+            }
+        });
+        addChoice(new Choice("У меня нет людей, здорово, правда?",
+                new Result("Нет людей, нет проблем.") {
+                    @Override
+                    public String doChange(GameSession session) {
+                        return super.doChange(session);
+                    }
+                }) {
+            @Override
+            public boolean isVisible(GameSession session) {
+                return session.getCharacter().getHumans().getPositiveValue() <= 0;
+            }
         });
     }
 }

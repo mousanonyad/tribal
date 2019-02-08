@@ -108,6 +108,12 @@ public class GameSession {
         calculateHumans(builder);
         getPercentUnitRelationship(builder);
         calculateResource();
+
+        if (getCountOfAllPeople() <= 0){
+            setGameOver();
+            builder.append("Все умерли.");
+        }
+
         return builder;
     }
 
