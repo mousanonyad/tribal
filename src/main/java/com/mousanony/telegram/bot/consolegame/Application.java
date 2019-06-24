@@ -18,13 +18,13 @@ public class Application {
     private static final String BOT_TOKEN = "";
 //    private static final String BOT_URL = "t.me/TribalLeaderBot";
 
-    private static String PROXY_HOST = "212.224.113.209" /* proxy host */;
-    private static Integer PROXY_PORT = 1080 /* proxy port */;
-    private static String PROXY_USER = "proxy" /* proxy user */;
-    private static String PROXY_PASSWORD = "quah1Iej" /* proxy password */;
+    private static String PROXY_HOST = "212.224.113.209";
+    private static Integer PROXY_PORT = 1080;
+    private static String PROXY_USER = "proxy";
+    private static String PROXY_PASSWORD = "quah1Iej";
 
     //пока всё здесь, рефакторинг потом
-    private static boolean useProxy = true;
+    private static boolean useProxy = false;
 
     public static void main(String[] args) {
         try {

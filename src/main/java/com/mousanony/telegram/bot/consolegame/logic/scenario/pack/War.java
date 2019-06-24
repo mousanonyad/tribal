@@ -3,69 +3,26 @@ package com.mousanony.telegram.bot.consolegame.logic.scenario.pack;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.Situation;
 import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
 import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Result;
-import com.mousanony.telegram.bot.consolegame.person.Character;
-import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
 import com.mousanony.telegram.bot.consolegame.session.GameSession;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author mousanonyad
  */
 public class War extends Situation {
-    public War() {
-        super("Тревога! К нам приближается войско соседнего племени," +
-                "В войске врага 30 человек. Что будем делать, о великий?");
+    public War(int countOfAttackers, int countOfFood) {
+        super("Тревога! К нам приближается войско соседнего племени. " +
+                "В войске врага " + countOfAttackers + " человек. Что будем делать, о великий?");
 
-        addChoice(new Choice("Сформировать армию из простолюдин.",
+
+        addChoice(new Choice("Использовать военную хитрость и понадеяться на ритуалы жрецов.",
                 new Result() {
+                    @NotNull
                     @Override
                     public String doChange(GameSession session) {
-                        Character character = session.getCharacter();
-
-                        Resource police = character.getPolice();
-                        Resource humans = character.getHumans();
-                        //TODO переделать
-                        int count = 35 - police.getPositiveValue();
-                        int value = humans.getPositiveValue() - count;
-
-                        if (value > 0) {
-                            humans.decrease(count);
-                            police.increase(count);
-                        }
-                        //типа если людей не хватает, то берем всех, оставляя только 2х. Херня логика
-                        else {
-                            humans.decrease(humans.getPositiveValue() - 2);
-                            police.increase(humans.getPositiveValue() - 2);
-                        }
-
-
-                        if (police.getPositiveValue() > 30 || police.getPositiveValue() > 20 && session.rollDice()) {
-                            setMessage("Похоже мы победили, о великий, наши ряды пополнены пленными.");
-                            police.increaseWithPercent(10);
-                            humans.increaseWithPercent(20);
-                        } else {
-                            setMessage("Мы проиграли это сражение, всё племя перебили.");
-                            session.setGameOver();
-                        }
-                        return super.doChange(session);
-                    }
-                }) {
-            @Override
-            public boolean isVisible(GameSession session) {
-                //Виден только тогда, когда воинов меньше 30 и людей + воинов больше 30.
-                return session.getCharacter().getHumans().getPositiveValue() + session.getCharacter().getPolice().getPositiveValue() > 20
-                        && session.getCharacter().getPolice().getPositiveValue() < 30;
-            }
-        });
-        addChoice(new Choice("Использовать военную хитрость и понадеяться на молитвы жрецов.",
-                new Result() {
-                    @Override
-                    public String doChange(GameSession session) {
-                        if (session.rollDice()) {
-                            setMessage("Нам удалось заманить врагов в ловушку и победить." +
-                                    "\nЛюди добыли больше еды, лишь бы их мудрый вождь оставался таким же мудрым");
-                            session.getCharacter().getPolice().increaseWithPercent(10);
-                            session.getCharacter().getHumans().increaseWithPercent(10);
-                            session.getCharacter().getFood().increase(20);
+                        if (session.rollDiceWithPercent(40)) {
+                            setMessage("Нам удалось заманить врагов в ловушку и победить.");
+                            createWar(15 + session.getRandom().nextInt(10), 50 + session.getRandom().nextInt(15), session);
                             return super.doChange(session);
                         }
                         session.setGameOver();
@@ -75,38 +32,69 @@ public class War extends Situation {
                 }) {
             @Override
             public boolean isVisible(GameSession session) {
-                return session.getCharacter().getPriests().getPositiveValue() > 0;
+                return session.getTribal().getPriests().getPositiveValue() > 2 &&
+                        session.getTribal().getHumans().getPositiveValue() > 20;
             }
         });
         addChoice(new Choice("Попробовать откупиться едой.",
                 new Result() {
+                    @NotNull
                     @Override
                     public String doChange(GameSession session) {
                         setMessage("Враг принял наши условия, мы лишились части еды.");
-                        session.getCharacter().getFood().decrease(40);
+                        session.getTribal().getFood().decrease(countOfFood);
+
+                        createWar(30 + session.getRandom().nextInt(15), 80 + session.getRandom().nextInt(20), session);
                         return super.doChange(session);
                     }
                 }) {
             @Override
             public boolean isVisible(GameSession session) {
-                return session.getCharacter().getFood().getPositiveValue() > 40;
+                return session.getTribal().getFood().getPositiveValue() >= countOfFood;
             }
         });
-        addChoice(new Choice("Мы сильнее, предложить им сдаться и присоединиться к нам.",
+        addChoice(new Choice("Сражаться!",
                 new Result() {
+                    @NotNull
                     @Override
                     public String doChange(GameSession session) {
-                        setMessage("Наши ряды пополнились, несогласные принесены в жертву жрецам. Народ ликует.");
-                        session.getCharacter().getPolice().increaseWithPercent(20);
-                        session.getCharacter().getHumans().increaseWithPercent(20);
-                        session.getCharacter().getHumans().increaseWithPercent(20);
+                        //TODO придумать нормальную логику
+                        if (session.getCountOfPolice() <= countOfAttackers || (session.getTribal().getPolice().getPositiveValue() +
+                                session.getTribal().getHumans().getPositiveValue() > countOfAttackers * 2 && session.rollDiceWithPercent(60))) {
+                            setMessage("Это была тяжелая битва, но мы победили!");
+                            session.getTribal().getPolice().decreaseWithPercent(60);
+                            session.getTribal().getHumans().decreaseWithPercent(20);
+                            createWar(session.getRandom().nextInt(28), session.getRandom().nextInt(50), session);
+                        } else if (session.getCountOfPolice() > countOfAttackers) {
+                            session.getTribal().getPolice().decreaseWithPercent(50);
+                            setMessage("Мы победили!");
+                            createWar(session.getRandom().nextInt(20), session.getRandom().nextInt(45), session);
+                        } else {
+                            if (session.rollDice()) {
+                                setMessage("Мы проиграли.");
+                                session.setGameOver();
+                            } else
+                                setMessage("Нападавших забрали боги на круглых летающих тарелках..");
+                        }
                         return super.doChange(session);
                     }
-                }) {
-            @Override
-            public boolean isVisible(GameSession session) {
-                return session.getCharacter().getPolice().getPositiveValue() > 40;
-            }
-        });
+                }));
+        addChoice(new Choice("Сдаться.",
+                new Result() {
+                    @NotNull
+                    @Override
+                    public String doChange(GameSession session) {
+                        session.setGameOver();
+                        if (session.rollDiceWithPercent(30))
+                            setMessage("Игра окончена. Но племя, которое на нас напало, процветает.");
+                        setMessage("Игра окончена.");
+                        return super.doChange(session);
+                    }
+                }));
+    }
+
+    private void createWar(int countOfAttackers, int countOfFood, GameSession session) {
+        session.deleteSituation(War.class);
+        session.getStartSituations().add(new War(countOfAttackers, countOfFood));
     }
 }

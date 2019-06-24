@@ -22,7 +22,7 @@ public class MapGameSessionDao implements GameSessionDao {
 
     @Override
     public GameSession newSessionWithId(long id) {
-        gameSessionMap.put(id, new GameSession(30));
+        gameSessionMap.put(id, new GameSession(90));
         return gameSessionMap.get(id);
     }
 }

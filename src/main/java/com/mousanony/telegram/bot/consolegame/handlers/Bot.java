@@ -4,6 +4,7 @@ import com.mousanony.telegram.bot.consolegame.dao.GameSessionDao;
 import com.mousanony.telegram.bot.consolegame.dao.MapGameSessionDao;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.Holder;
 import com.mousanony.telegram.bot.consolegame.logic.userinteraction.Choice;
+import com.mousanony.telegram.bot.consolegame.person.Tribal;
 import com.mousanony.telegram.bot.consolegame.session.GameSession;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
@@ -61,11 +62,12 @@ public class Bot extends AbilityBot {
                 .locality(USER)
                 .privacy(PUBLIC)
                 .action(ctx -> {
-                    silent.send("Здесь будет вводный инструктаж.", ctx.chatId());
+                    silent.send("Ты вождь племени, у тебя есть люди, воины и жрецы." +
+                            "Твоя задача выжить и стать успешным племенем.", ctx.chatId());
                     Integer id = ctx.user().getId();
                     GameSession session = gameSessionDao.newSessionWithId(id);
 
-                    silent.send(session.getCharacter().toString(), id);
+                    silent.send(printResources(session.getTribal()), id);
                     //current? где вызывать newHolder?
                     Holder holder = session.getCurrentHolder();
 
@@ -78,11 +80,19 @@ public class Bot extends AbilityBot {
                 .build();
     }
 
-    private String getChoises(Holder holder) {
+    private String printResources(Tribal tribal) {
+        return "\uD83D\uDC6A " + tribal.getHumans().getPositiveValue() +
+                "     \uD83D\uDC73 " + tribal.getPriests().getPositiveValue() +
+                "     \uD83D\uDC6E " + tribal.getPolice().getPositiveValue() +
+                "     \uD83C\uDF56 " + tribal.getFood().getPositiveValue();
+
+    }
+
+    private String getChoices(Holder holder) {
         //отдаем ответы
-        StringBuilder choises = new StringBuilder();
-        holder.getVisibleChoises().forEach((k, v) -> choises.append(k).append(". - ").append(v.getMessage()).append("\n"));
-        return markDownItalic(choises.toString());
+        StringBuilder choices = new StringBuilder();
+        holder.getVisibleChoices().forEach((k, v) -> choices.append(k).append(". - ").append(v.getMessage()).append("\n"));
+        return choices.toString();
     }
 
     private SendMessage getMessageWithButtons(MessageContext ctx, Holder holder) {
@@ -90,12 +100,12 @@ public class Bot extends AbilityBot {
                 .setChatId(ctx.chatId())
                 //как то хз
                 .setParseMode(ParseMode.MARKDOWN)
-                .setText(markDownBold(holder.getSituation().getMessage()) + "\n\n" + getChoises(holder))
-                .setReplyMarkup(withTodayTomorrowButtons(holder.getVisibleChoises()));
+                .setText(markDownBold(holder.getSituation().getMessage()) + "\n\n" + getChoices(holder))
+                .setReplyMarkup(withTodayTomorrowButtons(holder.getVisibleChoices()));
     }
 
     String markDownItalic(String string) {
-        return "__" + string + "__";
+        return "_" + string + "_";
     }
 
     String markDownBold(String string) {
@@ -114,29 +124,39 @@ public class Bot extends AbilityBot {
                     GameSession session = gameSessionDao.getSessionById(id);
 
                     if (session == null || session.isGameOver()) {
-                        gameOver(id);
+                        gameOver(id, session);
                         return;
                     }
 
                     //Берем текущую ситуацию и делаем логику
                     Holder holder = session.getCurrentHolder();
-                    Choice choice = holder.getVisibleChoises().get(Integer.valueOf(ctx.update().getMessage().getText()));
-                    String result = choice.getResult().doChange(session);
-                    silent.send(result, id);
+                    Choice choice = holder.getVisibleChoices().get(Integer.valueOf(ctx.update().getMessage().getText()));
 
-                    if (!session.isGameOver()) {
-                        silent.send(session.getCharacter().toString(), id);
-                        try {
-                            sender.execute(getMessageWithButtons(ctx, session.newHolder()));
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
-                        }
-                    } else gameOver(id);
+                    //Если нет такого ответа
+                    if (choice == null) {
+                        silent.send("Не понял.", id);
+                    } else {
+                        String result = choice.getResult().doChange(session);
+                        silent.sendMd(markDownItalic(result), id);
+
+                        if (!session.isGameOver()) {
+                            silent.send(printResources(session.getTribal()), id);
+                            try {
+                                sender.execute(getMessageWithButtons(ctx, session.newHolder()));
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
+                        } else gameOver(id, session);
+                    }
                 })
                 .build();
     }
 
-    private void gameOver(int id) {
+    private void gameOver(int id, GameSession session) {
+        if (session != null && session.getFinalMessage() != null) {
+            silent.send(session.getFinalMessage(), id);
+            session.setFinalMessage(null);
+        }
         silent.send("Играем? /start", id);
     }
 
@@ -152,9 +172,7 @@ public class Bot extends AbilityBot {
         for (Map.Entry<Integer, Choice> integerChoiceEntry : choiceMap.entrySet()) {
             row.add(integerChoiceEntry.getKey().toString());
         }
-
         keyboard.add(row);
-
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
     }

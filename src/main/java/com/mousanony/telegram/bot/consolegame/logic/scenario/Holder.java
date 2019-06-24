@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
  */
 public class Holder {
     private Situation situation;
-    private Map<Integer, Choice> visibleChoises;
+    private Map<Integer, Choice> visibleChoices;
 
     public Holder(Situation situation, GameSession gameSession) {
         this.situation = situation;
-        this.visibleChoises = getVisibleChoises(situation, gameSession);
+        this.visibleChoices = getVisibleChoices(situation, gameSession);
     }
 
-    private Map<Integer, Choice> getVisibleChoises(Situation situation, GameSession gameSession) {
+    private Map<Integer, Choice> getVisibleChoices(Situation situation, GameSession gameSession) {
         //фильтр по видимым ответам
         List<Choice> choiceList = situation.getChoices().stream().filter(p -> p.isVisible(gameSession)).collect(Collectors.toList());
         Collections.shuffle(choiceList);
@@ -30,12 +30,12 @@ public class Holder {
         return choiceList.stream().collect(Collectors.toMap(o -> choiceList.indexOf(o) + 1, Function.identity()));
     }
 
-    public Map<Integer, Choice> getVisibleChoises() {
-        return visibleChoises;
+    public Map<Integer, Choice> getVisibleChoices() {
+        return visibleChoices;
     }
 
-    public void setVisibleChoises(Map<Integer, Choice> visibleChoises) {
-        this.visibleChoises = visibleChoises;
+    public void setVisibleChoices(Map<Integer, Choice> visibleChoices) {
+        this.visibleChoices = visibleChoices;
     }
 
     public Situation getSituation() {

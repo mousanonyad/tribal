@@ -2,16 +2,14 @@ package com.mousanony.telegram.bot.consolegame.session;
 
 import com.mousanony.telegram.bot.consolegame.logic.scenario.Holder;
 import com.mousanony.telegram.bot.consolegame.logic.scenario.Situation;
-import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.Hurricane;
-import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.NothingSituation;
-import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.PoisonedFood;
-import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.War;
-import com.mousanony.telegram.bot.consolegame.person.Character;
-import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.*;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.randomsit.DecreaseSomeOneSituation;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.randomsit.LessPolice;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.randomsit.LessPriest;
+import com.mousanony.telegram.bot.consolegame.logic.scenario.pack.randomsit.MoreEat;
+import com.mousanony.telegram.bot.consolegame.person.Tribal;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -20,27 +18,62 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameSession {
     private List<Situation> startSituations;
     private List<Situation> middleSituations;
-    private List<Situation> holdSituations;
+    private List<Situation> randomSituations;
+    private List<Situation> leftOffSituations;
+    private Deque<Situation> situationDeque;
     private Holder holder;
-    private Character character;
+    private Tribal tribal;
     private Random random;
     private String finalMessage;
     private boolean gameOver = false;
     private AtomicInteger count = new AtomicInteger();
 
-    public GameSession(int humanCount) {
-        this.character = new Character(new Resource(humanCount));
+    public GameSession(int foodCount) {
+        this.tribal = new Tribal(foodCount);
         this.startSituations = new ArrayList<>();
         this.middleSituations = new ArrayList<>();
-        this.holdSituations = new ArrayList<>();
+        this.randomSituations = new ArrayList<>();
+        this.leftOffSituations = new ArrayList<>();
         this.random = new Random();
 
         startSituations.add(new NothingSituation());
         startSituations.add(new PoisonedFood());
         startSituations.add(new Hurricane());
+        startSituations.add(new MorePolice());
+        startSituations.add(new GuardSituation());
+        startSituations.add(new MorePriest());
+        startSituations.add(new PriestFire());
+        startSituations.add(new War(25 + random.nextInt(10), 75 + random.nextInt(10)));
+        startSituations.add(new NeighbourImmigration());
+        startSituations.add(new GiveMePriest());
+        Collections.shuffle(startSituations);
 
-        middleSituations.add(new War());
+//        Collections.shuffle(middleSituations);
+
+        situationDeque = new ArrayDeque<>();
+        situationDeque.addAll(startSituations);
+//        situationDeque.addAll(middleSituations);
+
+//        startSituations.addAll(middleSituations);
+
+        randomSituations.add(new LessPolice());
+        randomSituations.add(new MoreEat());
+        randomSituations.add(new DecreaseSomeOneSituation());
+        randomSituations.add(new LessPriest());
+
         holder = newHolder();
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public List<Situation> getStartSituations() {
+        return startSituations;
+    }
+
+    public void setLeftOffSituations(Situation situation) {
+        this.leftOffSituations.add(situation);
     }
 
     public Holder getCurrentHolder() {
@@ -48,10 +81,27 @@ public class GameSession {
     }
 
     public Holder newHolder() {
-        if (count.getAndIncrement() > 2) {
-            startSituations.addAll(middleSituations);
+        count.incrementAndGet();
+        if (situationDeque.isEmpty()) {
+            Collections.shuffle(startSituations);
+            situationDeque.addAll(startSituations);
         }
-        Situation situation = startSituations.get(random.nextInt(startSituations.size()));
+
+        Situation situation;
+        if (rollDiceWithPercent(13)) {
+            situation = randomSituations.get(random.nextInt(randomSituations.size()));
+            holder = new Holder(situation, this);
+            return holder;
+        }
+
+        //типа отложенные ситуации, если есть, то добавляем
+        if (!leftOffSituations.isEmpty()) {
+            //TODO ну хз, типа всё вначало
+            situationDeque.push(leftOffSituations.get(0));
+            leftOffSituations.remove(0);
+        }
+
+        situation = situationDeque.poll();
         holder = new Holder(situation, this);
         return holder;
     }
@@ -59,14 +109,21 @@ public class GameSession {
     public void setGameOver() {
         this.gameOver = true;
         holder = null;
+        finalMessage = "Ходов: " + count.get() + ".";
+    }
+
+    public void deleteSituation(Class situationClass) {
+        for (Situation s : startSituations) {
+            //TODO что я делаю, о ужас
+            if (Objects.equals(s.getClass().getSimpleName(), situationClass.getSimpleName())) {
+                startSituations.remove(s);
+                break;
+            }
+        }
     }
 
     public boolean isGameOver() {
         return gameOver;
-    }
-
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
     }
 
     public String getFinalMessage() {
@@ -81,24 +138,24 @@ public class GameSession {
         return random.nextInt(100);
     }
 
-    public Character getCharacter() {
-        return character;
+    public Tribal getTribal() {
+        return tribal;
     }
 
-    private int getCountOfPolice() {
-        return character.getPolice().getPositiveValue();
+    public int getCountOfPolice() {
+        return tribal.getPolice().getPositiveValue();
     }
 
-    private int getCountOfPriests() {
-        return character.getPriests().getPositiveValue();
+    public int getCountOfPriests() {
+        return tribal.getPriests().getPositiveValue();
     }
 
-    private int getCountOfHumans() {
-        return character.getHumans().getPositiveValue();
+    public int getCountOfHumans() {
+        return tribal.getHumans().getPositiveValue();
     }
 
-    private int getCountOfAllPeople() {
-        return character.getPolice().getPositiveValue() + character.getPriests().getPositiveValue() + character.getHumans().getPositiveValue();
+    public int getCountOfAllPeople() {
+        return tribal.getPolice().getPositiveValue() + tribal.getPriests().getPositiveValue() + tribal.getHumans().getPositiveValue();
     }
 
     public StringBuilder doLogic() {
@@ -107,9 +164,8 @@ public class GameSession {
             return builder;
         calculateHumans(builder);
         getPercentUnitRelationship(builder);
-        calculateResource();
 
-        if (getCountOfAllPeople() <= 0){
+        if (getCountOfAllPeople() <= 0) {
             setGameOver();
             builder.append("Все умерли.");
         }
@@ -118,37 +174,48 @@ public class GameSession {
     }
 
     private void calculateHumans(StringBuilder builder) {
-        if (character.getHumans().getPositiveValue() <= 0)
+        if (tribal.getHumans().getPositiveValue() <= 0)
             builder.append("Все люди умерли, воинам и жрецам придется самим возделывать землю.\n");
-        if (character.getFood().getPositiveValue() <= 0) {
-            character.getHumans().decreaseWithPercent(30);
-            character.getPolice().decreaseWithPercent(20);
-            character.getPriests().decreaseWithPercent(20);
-            builder.append("Люди мрут от голода.\n");
-        } else character.getHumans().increaseWithPercent(5);
-    }
-
-    private void calculateResource() {
-        Resource food = character.getFood();
-        if (getCountOfHumans() > 0)
-            food.increaseWithPercent(10);
-        else
-            food.decreaseWithPercent(20);
+        if (tribal.getFood().getPositiveValue() <= 0) {
+            tribal.getHumans().decreaseWithPercent(30);
+            tribal.getPolice().decreaseWithPercent(20);
+            tribal.getPriests().decreaseWithPercent(20);
+            builder.append("Племя мрет от голода.\n");
+        } else tribal.getHumans().increaseWithPercent(2);
     }
 
     private void getPercentUnitRelationship(StringBuilder builder) {
-        if (getCountOfHumans() / 100 * getCountOfPolice() > 50) {
-            builder.append("Воины устраивают дебош и убивают с пытками несколько людей.\n");
-            character.getHumans().decreaseWithPercent(10);
-        }
-        if (getCountOfHumans() / 100 * getCountOfPriests() > 30) {
+        //если воинов слишком много
+        if (getCountOfPolice() / ((float) getCountOfHumans() / 100) > 50) {
+            tribal.getFood().decreaseWithPercent(20);
+            //если простых людей больше 60%
+        } else if (getCountOfHumans() / ((float) getCountOfAllPeople() / 100) > 60) {
+            tribal.getFood().increaseWithPercent(10);
+        } else tribal.getFood().decreaseWithPercent(15);
+
+        //если жрецов слишком много
+        if (getCountOfPriests() / ((float) getCountOfHumans() / 100) > 40 && getCountOfPriests() > 10) {
             builder.append("Народ бастует против засилия жрецов, ест еду и жжет жрецов!\n");
-            character.getPriests().decreaseWithPercent(15);
-            character.getFood().decreaseWithPercent(15);
+            tribal.getPriests().decreaseWithPercent(30);
+            tribal.getFood().decreaseWithPercent(20);
+        }
+
+        //если закончились жрецы
+        if (getCountOfPriests() <= 0 && getCountOfHumans() > 0) {
+            leftOffSituations.add(new PriestAreOver());
+        }
+
+        if (getTribal().getFood().getPositiveValue() > getCountOfAllPeople() && getTribal().getFood().getPositiveValue() > 170) {
+            builder.append("Часть еды сгнила, ничего не поделаешь!");
+            getTribal().getFood().decreaseWithPercent(10);
         }
     }
 
     public boolean rollDice() {
         return Math.random() < 0.5;
+    }
+
+    public boolean rollDiceWithPercent(int percent) {
+        return random.nextFloat() <= (float) percent / 100;
     }
 }

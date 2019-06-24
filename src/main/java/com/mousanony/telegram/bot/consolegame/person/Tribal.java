@@ -5,17 +5,17 @@ import com.mousanony.telegram.bot.consolegame.person.resources.Resource;
 /**
  * @author mousanonyad
  */
-public class Character {
+public class Tribal {
     private Resource food;
     private Resource priests;
     private Resource humans;
     private Resource police;
 
-    public Character(Resource food) {
-        this.food = food;
-        this.priests = new Resource(3);
-        this.humans = new Resource(20);
-        this.police = new Resource(5);
+    public Tribal(int food) {
+        this.food = new Resource(food);
+        this.priests = new Resource(5);
+        this.humans = new Resource(80);
+        this.police = new Resource(23);
     }
 
     public Resource getFood() {

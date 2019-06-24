@@ -1,6 +1,8 @@
 package com.mousanony.telegram.bot.consolegame.logic.userinteraction;
 
 import com.mousanony.telegram.bot.consolegame.session.GameSession;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author mousanonyad
@@ -19,9 +21,12 @@ public class Result {
         this.message = message;
     }
 
-    public String doChange(GameSession session) {
-        StringBuilder builder = session.doLogic();
-
-        return builder.append("\n").append(message).toString();
+    public @NotNull
+    String doChange(GameSession session) {
+        String logicResult = session.doLogic().toString();
+        if (!StringUtils.isEmpty(logicResult)) {
+            return message + "\n\n" + logicResult;
+        }
+        return message;
     }
 }

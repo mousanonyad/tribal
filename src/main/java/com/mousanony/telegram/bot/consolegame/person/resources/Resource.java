@@ -11,6 +11,9 @@ public class Resource {
     }
 
     public void increaseWithPercent(int percent) {
+        if (positiveValue <= 0) {
+            increase(2);
+        }
         this.positiveValue += (Math.ceil((double) percent / 100 * positiveValue));
     }
 
@@ -19,7 +22,7 @@ public class Resource {
     }
 
     public int increase(int count) {
-        return positiveValue = positiveValue + count;
+        return this.positiveValue += count;
     }
 
     public int decrease(int count) {
@@ -35,9 +38,5 @@ public class Resource {
 
     public void setPositiveValue(int positiveValue) {
         this.positiveValue = positiveValue;
-    }
-
-    public int getPercent(int count) {
-        return positiveValue / 100 * count;
     }
 }
