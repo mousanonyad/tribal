@@ -59,11 +59,11 @@ public class War extends Situation {
                     @Override
                     public String doChange(GameSession session) {
                         //TODO придумать нормальную логику
-                        if (session.getCountOfPolice() <= countOfAttackers || (session.getTribal().getPolice().getPositiveValue() +
-                                session.getTribal().getHumans().getPositiveValue() > countOfAttackers * 2 && session.rollDiceWithPercent(60))) {
+                        if (session.getTribal().getPolice().getPositiveValue() +
+                                session.getTribal().getHumans().getPositiveValue() > countOfAttackers * 2) {
                             setMessage("Это была тяжелая битва, но мы победили!");
                             session.getTribal().getPolice().decreaseWithPercent(60);
-                            session.getTribal().getHumans().decreaseWithPercent(20);
+                            session.getTribal().getHumans().decreaseWithPercent(30);
                             createWar(session.getRandom().nextInt(28), session.getRandom().nextInt(50), session);
                         } else if (session.getCountOfPolice() > countOfAttackers) {
                             session.getTribal().getPolice().decreaseWithPercent(50);

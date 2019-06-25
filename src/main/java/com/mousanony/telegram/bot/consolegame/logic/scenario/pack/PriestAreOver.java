@@ -19,13 +19,13 @@ public class PriestAreOver extends Situation {
             @Override
             public String doChange(GameSession session) {
                 session.getTribal().getPriests().increase(6);
-                session.getTribal().getFood().decrease(30);
+                session.getTribal().getFood().decreaseWithPercent(30);
                 return super.doChange(session);
             }
         }) {
             @Override
             public boolean isVisible(GameSession session) {
-                return session.getTribal().getFood().getPositiveValue() > 30;
+                return session.getTribal().getFood().getPositiveValue() > 10;
             }
         });
         addChoice(new Choice("Отправить часть народа на обучение.", new Result(
@@ -33,14 +33,16 @@ public class PriestAreOver extends Situation {
             @NotNull
             @Override
             public String doChange(GameSession session) {
-                session.getTribal().getPriests().increase(5);
-                session.getTribal().getHumans().decrease(15);
+
+                    session.getTribal().getPriests().increase(5);
+                    session.getTribal().getHumans().decrease(7);
+
                 return super.doChange(session);
             }
-        }) {
+        }){
             @Override
             public boolean isVisible(GameSession session) {
-                return session.getCountOfHumans() > 20;
+                return session.getCountOfHumans() >= 5;
             }
         });
         addChoice(new Choice("Отправить часть воинов на обучение.", new Result(
@@ -59,12 +61,13 @@ public class PriestAreOver extends Situation {
             }
         });
         addChoice(new Choice("Отложить решение на потом.", new Result(
-                "Люди устроили в едохранилище промискуитет. Пришлось убить самых усердных.") {
+                "Люди устроили в едохранилище промискуитет. Самые усердные стали жрецами!") {
             @NotNull
             @Override
             public String doChange(GameSession session) {
                 session.getTribal().getFood().decreaseWithPercent(20);
-                session.getTribal().getHumans().decreaseWithPercent(20);
+                session.getTribal().getHumans().decrease(2);
+                session.getTribal().getPriests().increase(2);
                 return super.doChange(session);
             }
         }));
